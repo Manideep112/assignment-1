@@ -37,12 +37,54 @@ const convertingToList = (value) => {
   };
 };
 
+const validQuery = (status, priority, category) => {
+  let isStatus;
+  let isCategory;
+  let isPriority;
+
+  if (status === "TO DO" || status === "IN PROGRESS" || status === "DONE") {
+    isStatus = true;
+  } else {
+    isStatus = false;
+  }
+
+  if (category === "WORK" || category === "HOME" || category === "LEARNING") {
+    isCategory = true;
+  } else {
+    isCategory = false;
+  }
+
+  if (priority === "HIGH" || priority === "MEDIUM" || priority === "LOW") {
+    isPriority = true;
+  } else {
+    isPriority = false;
+  }
+
+  return { isStatus, isCategory, isPriority };
+};
+
 app.get("/todos/", async (request, response) => {
   const { status, priority, search_q = "", category } = request.query;
+
+  let a = validQuery(status, priority, category);
+  console.log(a);
   let query1;
   let query1Db;
+
+  const wrongInput = (a, b, c) => {
+    response.status(400);
+
+    if (b !== undefined) {
+      response.send("Invalid Todo Priority");
+    } else if (a !== undefined) {
+      response.send("Invalid Todo Status");
+    } else {
+      response.send("Invalid Todo Category");
+    }
+  };
+
   switch (true) {
-    case category !== undefined && priority !== undefined:
+    case a.isCategory === true && a.isPriority == true:
       query1 = `
         SELECT 
             *
@@ -59,7 +101,7 @@ app.get("/todos/", async (request, response) => {
 
       break;
 
-    case category !== undefined && status !== undefined:
+    case a.isCategory === true && a.isStatus === true:
       query1 = `
         SELECT 
             *
@@ -74,7 +116,7 @@ app.get("/todos/", async (request, response) => {
       //   console.log("statuscategory");
       break;
 
-    case priority !== undefined && status !== undefined:
+    case a.isPriority === true && a.isStatus === true:
       query1 = `
         SELECT 
             *
@@ -101,7 +143,7 @@ app.get("/todos/", async (request, response) => {
       response.send(query1Db.map((value) => convertingToList(value)));
       break;
 
-    case status !== undefined:
+    case a.isStatus === true:
       query1 = `
         SELECT 
             *
@@ -115,7 +157,7 @@ app.get("/todos/", async (request, response) => {
       // console.log("status");
       break;
 
-    case priority !== undefined:
+    case a.isPriority === true:
       query1 = `
         SELECT 
             *
@@ -129,7 +171,7 @@ app.get("/todos/", async (request, response) => {
       //  console.log("priority");
       break;
 
-    default:
+    case a.isCategory === true:
       query1 = `
         SELECT 
             *
@@ -137,12 +179,15 @@ app.get("/todos/", async (request, response) => {
             todo
         WHERE 
             category = '${category}'`;
-
-      //  console.log("category");
       query1Db = await db.all(query1);
       response.send(query1Db.map((value) => convertingToList(value)));
-
       break;
+
+    default:
+      wrongInput(status, priority, category);
+
+      query1Db = await db.all(query1);
+      response.send(query1Db.map((value) => convertingToList(value)));
   }
 });
 

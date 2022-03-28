@@ -1,4 +1,4 @@
-GET http://localhost:3000/todos/?status=TO%20DO
+GET http://localhost:3000/todos/?status=TO%20D
 
 ###
 
@@ -9,7 +9,7 @@ GET http://localhost:3000/todos/?category=HOME
 
 ###
 
-GET http://localhost:3000/todos/?category=LEARNING&priority=HIGH
+GET http://localhost:3000/todos/?category=LEARNING&priority=HIG
 ###
 
 GET http://localhost:3000/todos/3/
